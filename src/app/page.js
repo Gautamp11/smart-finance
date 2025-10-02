@@ -1,20 +1,17 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Login from "./components/Login";
+import { auth } from "./_lib/auth";
 
 export default async function HomePage() {
-  const session = await getServerSession();
-
-  // If logged in, send user straight to dashboard
+  const session = await auth();
   if (session) {
     redirect("/dashboard");
   }
 
-  // If not logged in, show landing/login
   return (
-    <main>
-      <h1 className="text-4xl font-bold mb-4">Welcome to Smart Finance</h1>
-      <p className="text-lg mb-8 text-gray-700">
+    <main className="flex flex-col  justify-center items-center p-16">
+      <h1 className="text-5xl font-bold mb-4">Welcome to Smart Finance</h1>
+      <p className="text-xl mb-8 text-white">
         Plan your Budget and observe it later.
       </p>
       <Login />

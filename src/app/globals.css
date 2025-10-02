@@ -1,12 +1,39 @@
 @import "tailwindcss";
 
+@layer components {
+  .spinner {
+    margin: 3.2rem auto 1.6rem;
+    width: 60px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 8px solid theme("colors.primary");
+    border-right-color: theme("colors.light");
+    animation: rotate 1s infinite linear;
+  }
+
+  .spinner-mini {
+    margin: 0;
+    width: 20px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px solid theme("colors.primary");
+    border-right-color: transparent;
+    animation: rotate 1s infinite linear;
+  }
+  @keyframes rotate {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+}
 @theme {
-  --color-light: oklch(98% 0.016 73.684);
+  --color-light: oklch(98.4% 0.003 247.858);
   --color-primary: oklch(70.5% 0.213 47.604);
+  --color-accent-light: oklch(95.4% 0.038 75.164);
   --color-accent: oklch(75% 0.183 55.934);
-  --color-dark: oklch(13% 0.028 261.692);
+  --color-dark: oklch(12.9% 0.042 264.695);
 }
 
 body {
-  color: var(--color-dark);
+  color: white;
 }

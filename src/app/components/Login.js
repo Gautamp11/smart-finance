@@ -17,7 +17,7 @@ export default function Login() {
   return (
     <>
       <button
-        className="bg-primary px-4 py-2 rounded m-2 text-light font-bold hover:scale-98 transition-transform"
+        className="cursor-pointer bg-primary px-4 py-2 rounded m-2 text-light font-bold hover:scale-98 transition-transform"
         onClick={() => signIn("google")}
       >
         Sign in
