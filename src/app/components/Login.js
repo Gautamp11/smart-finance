@@ -1,9 +1,11 @@
 "use client";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { IoIosLogOut } from "react-icons/io";
+import Loader from "./Loader";
+import LoaderMini from "./LoaderMini";
 
 export default function Login() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   if (session) {
     return (
@@ -17,10 +19,11 @@ export default function Login() {
   return (
     <>
       <button
-        className="cursor-pointer bg-primary px-4 py-2 rounded m-2 text-light font-bold hover:scale-98 transition-transform"
+        className="cursor-pointer bg-primary px-4 py-2 rounded m-2 text-light font-bold hover:bg-accent hover:scale-98 transition-transform"
         onClick={() => signIn("google")}
+        // disabled={status === "loading"}
       >
-        Sign in
+        {status === "loading" ? <LoaderMini /> : "Sign In"}
       </button>
     </>
   );

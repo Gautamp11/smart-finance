@@ -1,7 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import FormCard from "./FormCard";
 import { useRouter } from "next/navigation";
+import Card from "../_ui/Card";
+
+import { DollarSign, TrendingUp, TrendingDown, BookOpen } from "lucide-react";
+import { calculateTotals } from "../utils/calculateTotals";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -9,8 +13,28 @@ const Dashboard = () => {
     new Date().toISOString().slice(0, 7)
   );
 
+  // const defaultData = {
+  //   income: { salary: 51307, bonus: 6579 },
+  //   expenses: {
+  //     food: 6000,
+  //     rent: 8000,
+  //     emi: 0,
+  //     kitty: 2000,
+  //     misc: 1000,
+  //     sip: 8000,
+  //   },
+  //   investments: {
+  //     "grow stocks": 128000,
+  //     "kotak stocks": 47115,
+  //     "mutual funds": 130000,
+  //   },
+  //   bills: { hdfc: 1280, idfc: 998, flipkart: 521, amazon: 0 },
+  //   balance: { hdfc: 59650, pnb: 76, kotak: 2800, idfc: 0 },
+  //   savings: { savings: 0 },
+  // };
+
   const defaultData = {
-    income: { salary: 51307, bonus: 6579 },
+    income: { salary: 50000, bonus: 0 },
     expenses: {
       food: 6000,
       rent: 8000,
@@ -24,8 +48,8 @@ const Dashboard = () => {
       "kotak stocks": 47115,
       "mutual funds": 130000,
     },
-    bills: { hdfc: 1280, idfc: 998, flipkart: 521, amazon: 0 },
-    balance: { hdfc: 59650, pnb: 76, kotak: 2800, idfc: 0 },
+    bills: { hdfc: 0, idfc: 0, flipkart: 0, amazon: 0 },
+    balance: { hdfc: 0, pnb: 0, kotak: 0, idfc: 0 },
     savings: { savings: 0 },
   };
 
@@ -61,47 +85,61 @@ const Dashboard = () => {
   };
 
   // Calculate totals
-  const calculateTotals = () => {
-    const totalIncome = Object.values(financialData.income).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const totalExpenses = Object.values(financialData.expenses).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const totalBills = Object.values(financialData.bills).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const totalBalance = Object.values(financialData.balance).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const totalInvestments = Object.values(financialData.investments).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const savingAfterExpense = totalBalance - totalExpenses;
-    const totalSavings = savingAfterExpense + financialData.savings.savings;
 
-    const netWorth = totalBalance + totalInvestments + savingAfterExpense;
-    const disposableIncome = totalIncome - totalExpenses - totalBills;
+  const totals = calculateTotals(financialData);
 
-    return {
-      totalIncome,
-      totalExpenses,
-      totalBills,
-      totalBalance,
-      totalSavings,
-      totalInvestments,
-      savingAfterExpense,
-      netWorth,
-      disposableIncome,
-    };
-  };
-
-  const totals = calculateTotals();
+  const summaryCards = [
+    {
+      title: "Net Worth",
+      value: totals.netWorth,
+      valueClassName: "text-purple-600",
+      icon: <DollarSign className="w-4 h-4" />,
+    },
+    {
+      title: "Disposable Income",
+      value: totals.disposableIncome,
+      valueClassName:
+        totals.disposableIncome >= 0 ? "text-blue-600" : "text-red-600",
+      icon: <TrendingUp className="w-4 h-4" />,
+    },
+    {
+      title: "Total Income",
+      value: totals.totalIncome,
+      valueClassName: "text-green-600",
+      icon: <TrendingUp className="w-4 h-4" />,
+    },
+    {
+      title: "Total Outflow (E+B)",
+      value: totals.totalExpenses + totals.totalBills,
+      valueClassName: "text-red-600",
+      icon: <TrendingDown className="w-4 h-4" />,
+    },
+    {
+      title: "Total Investments",
+      value: totals.totalInvestments,
+      valueClassName: "text-green-600",
+      icon: <TrendingUp className="w-4 h-4" />,
+    },
+    {
+      title: "Current Bank Balance",
+      value: totals.totalBalance,
+      valueClassName: "text-green-600",
+      icon: <DollarSign className="w-4 h-4" />,
+    },
+    {
+      title: "Cash Flow after Expenses",
+      value: totals.savingAfterExpense,
+      valueClassName:
+        totals.savingAfterExpense >= 0 ? "text-blue-600" : "text-red-600",
+      icon: <BookOpen className="w-4 h-4" />,
+    },
+    {
+      title: "Savings",
+      value: totals.savings,
+      valueClassName: "text-blue-600",
+      icon: <BookOpen className="w-4 h-4" />,
+    },
+  ];
 
   // Generate month options (12 months in the past, the current month, and 3 future months)
   const generateMonthOptions = () => {
@@ -170,61 +208,22 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
-        <div className="bg-gray-200 transition-all hover:bg-gray-300 p-4 rounded-lg shadow-sm mb-2 ">
-          <h3 className="text-sm text-gray-500">Net Worth</h3>
-          <p className="text-xl font-bold text-green-600">
-            ₹{totals.netWorth.toLocaleString()}
-          </p>
-        </div>
-        <div className="bg-gray-200 transition-all hover:bg-gray-300 p-4 rounded-lg shadow-sm mb-2 border">
-          <h3 className="text-sm text-gray-500">Disposable Income</h3>
-          <p className="text-xl font-bold text-blue-600">
-            ₹{totals.disposableIncome.toLocaleString()}
-          </p>
-        </div>
-        <div className="bg-gray-200 transition-all hover:bg-gray-300 p-4 rounded-lg shadow-sm mb-2 border">
-          <h3 className="text-sm text-gray-500">Total Income</h3>
-          <p className="text-xl font-bold text-green-600">
-            ₹{totals.totalIncome.toLocaleString()}
-          </p>
-        </div>
-        <div className="bg-gray-200 transition-all hover:bg-gray-300 p-4 rounded-lg shadow-sm mb-2 border">
-          <h3 className="text-sm text-gray-500">Total Expenses</h3>
-          <p className="text-xl font-bold text-red-600">
-            ₹{totals.totalExpenses.toLocaleString()}
-          </p>
-        </div>{" "}
-        <div className="bg-gray-200 transition-all hover:bg-gray-300 p-4 rounded-lg shadow-sm mb-2 border">
-          <h3 className="text-sm text-gray-500">Total Investments</h3>
-          <p className="text-xl font-bold text-green-600">
-            ₹{totals.totalInvestments.toLocaleString()}
-          </p>
-        </div>{" "}
-        <div className="bg-gray-200 transition-all hover:bg-gray-300 p-4 rounded-lg shadow-sm mb-2 border">
-          <h3 className="text-sm text-gray-500">Current Bank Balance</h3>
-          <p className="text-xl font-bold text-green-600">
-            ₹{totals.totalBalance.toLocaleString()}
-          </p>
-        </div>{" "}
-        <div className="bg-gray-200 transition-all hover:bg-gray-300 p-4 rounded-lg shadow-sm mb-2 border">
-          <h3 className="text-sm text-gray-500">Savings after expenses</h3>
-          <p className="text-xl font-bold text-blue-600">
-            ₹{totals.savingAfterExpense.toLocaleString()}
-          </p>
-        </div>{" "}
-        <div className="bg-gray-200 transition-all hover:bg-gray-300 p-4 rounded-lg shadow-sm mb-2 border">
-          <h3 className="text-sm text-gray-500">Total Savings</h3>
-          <p className="text-xl font-bold text-blue-600">
-            ₹{totals.totalSavings.toLocaleString()}
-          </p>
-        </div>
+      {/* Summary Cards Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-10">
+        {summaryCards.map((card, index) => (
+          <Card
+            key={index}
+            title={card.title}
+            value={card.value}
+            valueClassName={card.valueClassName}
+            icon={card.icon}
+          />
+        ))}
       </div>
 
-      {/* Current Month Display */}
-      <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <h2 className="text-lg font-semibold text-blue-800">
+      {/* Current Editing Month Display */}
+      <div className="mb-6 p-4 bg-gray-800 rounded-lg">
+        <h2 className="text-lg font-bold text-gray-400">
           Editing:{" "}
           {new Date(currentMonth).toLocaleDateString("en-IN", {
             year: "numeric",

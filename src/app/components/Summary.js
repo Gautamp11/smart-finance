@@ -1,80 +1,63 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { calculateTotals } from "../utils/calculateTotals";
+import { BiLoader } from "react-icons/bi";
+import Loader from "./Loader";
+
+// Add the calculateTotals function
 
 const Summary = () => {
   const router = useRouter();
   const [monthlyData, setMonthlyData] = useState([]);
 
   useEffect(() => {
-    // Load all monthly data from localStorage
-    const allData = [];
-    const current = new Date();
+    const loadMonthlyData = () => {
+      try {
+        const allData = [];
+        const current = new Date();
 
-    for (let i = -12; i <= 0; i++) {
-      const date = new Date(current.getFullYear(), current.getMonth() + i, 1);
-      const monthKey = date.toISOString().slice(0, 7);
-      const savedData = localStorage.getItem(`financialData_${monthKey}`);
+        for (let i = -11; i <= 2; i++) {
+          const date = new Date(
+            Date.UTC(current.getFullYear(), current.getMonth() + i, 1)
+          );
+          const monthKey =
+            date.getUTCFullYear() +
+            "-" +
+            String(date.getUTCMonth() + 1).padStart(2, "0");
 
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        const totals = calculateTotals(data);
+          const storageKey = `financialData_${monthKey}`;
 
-        allData.push({
-          month: monthKey,
-          label: date.toLocaleDateString("en-IN", {
-            year: "numeric",
-            month: "long",
-          }),
-          data: data,
-          totals: totals,
-        });
+          try {
+            const savedData = localStorage.getItem(storageKey);
+
+            if (savedData) {
+              const data = JSON.parse(savedData);
+              const totals = calculateTotals(data);
+
+              allData.push({
+                month: monthKey,
+                label: date.toLocaleDateString("en-IN", {
+                  year: "numeric",
+                  month: "long",
+                }),
+                data: data,
+                totals: totals,
+              });
+            }
+          } catch (error) {
+            console.error(`Error processing data for ${monthKey}:`, error);
+          }
+        }
+
+        setMonthlyData(allData.reverse());
+      } catch (error) {
+        console.error("Error loading monthly data:", error);
       }
-    }
-
-    setMonthlyData(allData.reverse()); // Show latest first
-  }, []);
-
-  const calculateTotals = (financialData) => {
-    const totalIncome = Object.values(financialData.income).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const totalExpenses = Object.values(financialData.expenses).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const totalBills = Object.values(financialData.bills).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const totalBalance = Object.values(financialData.balance).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const totalInvestments = Object.values(financialData.investments).reduce(
-      (sum, val) => sum + val,
-      0
-    );
-    const totalSavings = financialData.savings.amount;
-
-    const netWorth = totalBalance + totalInvestments + totalSavings;
-    const disposableIncome = totalIncome - totalExpenses - totalBills;
-    const savingsRate =
-      totalIncome > 0 ? (disposableIncome / totalIncome) * 100 : 0;
-
-    return {
-      totalIncome,
-      totalExpenses,
-      totalBills,
-      totalBalance,
-      totalInvestments,
-      totalSavings,
-      netWorth,
-      disposableIncome,
-      savingsRate: Math.round(savingsRate),
     };
-  };
+
+    loadMonthlyData();
+  }, []);
 
   const navigateToMonth = (month) => {
     router.push(`/?month=${month}`);
@@ -86,8 +69,8 @@ const Summary = () => {
 
   if (monthlyData.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-100 p-8 flex flex-col items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-sm border text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="bg-gray-300 p-8 rounded-lg shadow-sm border text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">
             No Data Available
           </h1>
@@ -96,7 +79,7 @@ const Summary = () => {
           </p>
           <button
             onClick={navigateToDashboard}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Go to Dashboard
           </button>
@@ -106,12 +89,12 @@ const Summary = () => {
   }
 
   return (
-    <div className="min-h-screen  p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 text-light">
           <div>
-            <h1 className="text-3xl font-bold ">Monthly Summaries</h1>
+            <h1 className="text-3xl font-bold">Monthly Summaries</h1>
             <p className="text-gray-400">Overview of your financial progress</p>
           </div>
           <button
@@ -127,11 +110,11 @@ const Summary = () => {
           {monthlyData.map((month) => (
             <div
               key={month.month}
-              className="bg-slate-200 rounded-lg shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
+              className="bg-slate-200 rounded-lg shadow-2xs shadow-light  hover:shadow-sm hover:-translate-y-1 transition-all cursor-pointer"
               onClick={() => navigateToMonth(month.month)}
             >
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-800">
+              <div className="p-6  ">
+                <h3 className="text-xl font-semibold text-gray-800 ">
                   {month.label}
                 </h3>
               </div>

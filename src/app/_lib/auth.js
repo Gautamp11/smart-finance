@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { connectDB } from "@/app/_lib/connectDB";
-import User from "@/models/User";
+// import { connectDB } from "@/app/_lib/connectDB";
+// import User from "@/models/User";
+import { createUser, getUser } from "./dataService";
 
 export const {
   handlers: { GET, POST },
@@ -18,24 +19,33 @@ export const {
 
   callbacks: {
     async signIn({ user }) {
-      await connectDB();
-      const existingUser = await User.findOne({ email: user.email });
-
-      if (!existingUser) {
-        await User.create({
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        });
+      try {
+        const existingUser = await getUser(user.email);
+        if (!existingUser) {
+          await createUser({
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          });
+        }
+        return true;
+      } catch (error) {
+        return false;
       }
 
-      return true;
+      // await connectDB();
+      // const existingUser = await User.findOne({ email: user.email });
+      // if (!existingUser) {
+      //   await User.create({
+      //     name: user.name,
+      //     email: user.email,
+      //     image: user.image,
+      //   });
+      // }
     },
     async session({ session }) {
-      await connectDB();
-      const dbUser = await User.findOne({ email: session.user.email });
-
-      session.user.id = dbUser._id.toString();
+      const loggedUser = await getUser(session.user.email);
+      session.user.id = loggedUser.id;
       return session;
     },
   },
