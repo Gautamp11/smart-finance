@@ -12,7 +12,6 @@ export default async function Layout({ children }) {
 
   return (
     <>
-      {/* <Navbar user={session?.user} /> */}
       <div className="max-w-7xl min-h-screen p-12">{children}</div>
     </>
   );

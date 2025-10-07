@@ -19,12 +19,11 @@ export const calculateTotals = (financialData) => {
     (sum, val) => sum + val,
     0
   );
-  const savingAfterExpense = totalBalance - totalExpenses;
-  const totalSavings = savingAfterExpense + financialData.savings.savings;
-
-  const netWorth = totalBalance + totalInvestments + savingAfterExpense;
   const disposableIncome = totalIncome - totalExpenses - totalBills;
+  const savingAfterExpense = disposableIncome + totalBalance;
+  const netWorth = totalBalance + totalInvestments + disposableIncome;
   const savings = financialData.savings.savings;
+  const totalSavings = savingAfterExpense + financialData.savings.savings;
   return {
     totalIncome,
     totalExpenses,

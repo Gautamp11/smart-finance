@@ -4,6 +4,8 @@ import { auth } from "./_lib/auth";
 
 export default async function HomePage() {
   const session = await auth();
+  console.log(session);
+
   if (session) {
     redirect("/dashboard");
   }

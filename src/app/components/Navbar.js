@@ -6,13 +6,14 @@ import { useSession } from "next-auth/react";
 
 export const Navbar = ({ href }) => {
   const pathname = usePathname();
-  const session = useSession();
-  const user = session?.data?.user;
+  const { data: session, status } = useSession();
+
+  const user = session?.user;
 
   return (
     // Dark background with light text
     <>
-      {session?.status === "authenticated" && (
+      {status === "authenticated" && (
         <nav className="p-4 flex items-center justify-between text-white ">
           <div className="font-bold  text-2xl">Smart Finance</div>
           <ul className="flex  gap-6 items-center font-semibold text-md">

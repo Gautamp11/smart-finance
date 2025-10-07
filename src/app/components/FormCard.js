@@ -1,13 +1,6 @@
 "use client";
 import React from "react";
-import {
-  List,
-  ChevronLeft,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  BookOpen,
-} from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, BookOpen } from "lucide-react";
 
 const FormCard = ({ category, data, onDataChange }) => {
   let total = 0;
