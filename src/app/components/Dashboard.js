@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import FormCard from "./FormCard";
 import { useRouter } from "next/navigation";
 import Card from "../_ui/Card";
-
 import { DollarSign, TrendingUp, TrendingDown, BookOpen } from "lucide-react";
 import { calculateTotals } from "../utils/calculateTotals";
 import { updateFinancialData } from "../_lib/dataService";
@@ -11,10 +10,18 @@ import debounce from "debounce";
 import { toast } from "sonner";
 
 const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
-  const [financialData, setFinancialData] = useState(initialFinancialData);
+  const [financialData, setFinancialData] = useState(
+    initialFinancialData || {
+      income: {},
+      expenses: {},
+      investments: {},
+      bills: {},
+      balance: {},
+      savings: {},
+    }
+  );
   const router = useRouter();
   const [monthKey, setMonthKey] = useState(initialMonthKey);
-
   const [isSaving, setIsSaving] = useState(false);
 
   // Create debounced save function directly
@@ -47,7 +54,7 @@ const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
     };
   }, [debouncedSave]);
 
-  // Handle data changes - SIMPLE!
+  // Handle data changes
   function handleDataChange(category, key, value) {
     const numericValue = parseFloat(value) || 0;
 
@@ -60,83 +67,42 @@ const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
     };
 
     setFinancialData(updatedData);
-
     debouncedSave(updatedData);
   }
 
-  // const defaultData = {
-  //   income: { salary: 51307, bonus: 6579 },
-  //   expenses: {
-  //     food: 6000,
-  //     rent: 8000,
-  //     emi: 0,
-  //     kitty: 2000,
-  //     misc: 1000,
-  //     sip: 8000,
-  //   },
-  //   investments: {
-  //     "grow stocks": 128000,
-  //     "kotak stocks": 47115,
-  //     "mutual funds": 130000,
-  //   },
-  //   bills: { hdfc: 1280, idfc: 998, flipkart: 521, amazon: 0 },
-  //   balance: { hdfc: 59650, pnb: 76, kotak: 2800, idfc: 0 },
-  //   savings: { savings: 0 },
-  // };
+  // Add new field to category
+  const handleAddField = (category, fieldName) => {
+    if (!fieldName.trim()) return;
 
-  // const defaultData = {
-  //   income: { salary: 50000, bonus: 0 },
-  //   expenses: {
-  //     food: 6000,
-  //     rent: 8000,
-  //     emi: 0,
-  //     kitty: 2000,
-  //     misc: 1000,
-  //     sip: 8000,
-  //   },
-  //   investments: {
-  //     "grow stocks": 128000,
-  //     "kotak stocks": 47115,
-  //     "mutual funds": 130000,
-  //   },
-  //   bills: { hdfc: 0, idfc: 0, flipkart: 0, amazon: 0 },
-  //   balance: { hdfc: 0, pnb: 0, kotak: 0, idfc: 0 },
-  //   savings: { savings: 0 },
-  // };
+    const updatedData = {
+      ...financialData,
+      [category]: {
+        ...financialData[category],
+        [fieldName.trim()]: 0,
+      },
+    };
 
-  // const [financialData, setFinancialData] = useState(defaultData);
+    setFinancialData(updatedData);
+    debouncedSave(updatedData);
+    toast.success(`Added ${fieldName} field`);
+  };
 
-  // Unified handler for all form changes
-  // async function handleDataChange(category, key, value) {
-  //   const numericValue = parseFloat(value) || 0;
+  // Delete field from category
+  const handleDeleteField = (category, fieldName) => {
+    const updatedCategory = { ...financialData[category] };
+    delete updatedCategory[fieldName];
 
-  //   // Update local state immediately for better UX
-  //   const updatedData = {
-  //     ...financialData,
-  //     [category]: {
-  //       ...financialData[category],
-  //       [key]: numericValue,
-  //     },
-  //   };
+    const updatedData = {
+      ...financialData,
+      [category]: updatedCategory,
+    };
 
-  //   // Update state first
-  //   setFinancialData(updatedData);
-
-  //   // Then send to Supabase
-  //   try {
-  //     await updateFinancialData({
-  //       userId,
-  //       monthKey,
-  //       updatedData, // Make sure this matches the parameter name
-  //     });
-  //   } catch (error) {
-  //     console.error("Failed to save data:", error);
-  //     // Optional: Revert state or show error message
-  //   }
-  // }
+    setFinancialData(updatedData);
+    debouncedSave(updatedData);
+    toast.success(`Deleted ${fieldName} field`);
+  };
 
   // Calculate totals
-
   const totals = calculateTotals(financialData);
 
   const summaryCards = [
@@ -159,7 +125,6 @@ const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
         totals.disposableIncome >= 0 ? "text-blue-600" : "text-red-600",
       icon: <TrendingUp className="w-4 h-4" />,
     },
-
     {
       title: "Total Outflow (E+B)",
       value: totals.totalExpenses + totals.totalBills,
@@ -193,26 +158,18 @@ const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
     },
   ];
 
-  // Generate month options (12 months in the past, the current month, and 3 future months)
+  // Generate month options
   const generateMonthOptions = () => {
     const options = [];
-    const now = new Date(); // Use 'now' for clarity
+    const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
 
-    // Loop from 12 months in the past (i = -12) up to 3 months in the future (i = 3)
-    // This gives 12 past + current + 3 future = 16 months total.
     for (let i = -12; i <= 3; i++) {
-      // Create a new Date object for the 1st of the month offset by 'i'
       const date = new Date(currentYear, currentMonth + i, 1);
-
-      // Format the value as YYYY-MM (e.g., "2025-10") for easy sorting/storage
       const year = date.getFullYear();
-      // getMonth() is 0-indexed, so add 1 and pad to 2 digits
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const value = `${year}-${month}`;
-
-      // Format the label as "Month Year" (e.g., "October 2025")
       const label = date.toLocaleDateString("en-IN", {
         year: "numeric",
         month: "long",
@@ -231,7 +188,7 @@ const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
   };
 
   return (
-    <div className="w-full min-h-screen  p-4">
+    <div className="w-full min-h-screen p-4">
       {/* Header with Month Selection */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
@@ -243,7 +200,7 @@ const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
           <select
             value={monthKey}
             onChange={(e) => setMonthKey(e.target.value)}
-            className="cursor-pointer px-4 py-2 border border-slate-500 rounded-lg bg-slate-500 outline-none focus:ring-1 focus:ring-light "
+            className="cursor-pointer px-4 py-2 border border-slate-500 rounded-lg bg-slate-500 outline-none focus:ring-1 focus:ring-light"
           >
             {monthOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -290,31 +247,43 @@ const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
           category="income"
           data={financialData.income}
           onDataChange={handleDataChange}
+          onAddField={handleAddField}
+          onDeleteField={handleDeleteField}
         />
         <FormCard
           category="expenses"
           data={financialData.expenses}
           onDataChange={handleDataChange}
+          onAddField={handleAddField}
+          onDeleteField={handleDeleteField}
         />
         <FormCard
           category="investments"
           data={financialData.investments}
           onDataChange={handleDataChange}
+          onAddField={handleAddField}
+          onDeleteField={handleDeleteField}
         />
         <FormCard
           category="bills"
           data={financialData.bills}
           onDataChange={handleDataChange}
+          onAddField={handleAddField}
+          onDeleteField={handleDeleteField}
         />
         <FormCard
           category="balance"
           data={financialData.balance}
           onDataChange={handleDataChange}
+          onAddField={handleAddField}
+          onDeleteField={handleDeleteField}
         />
         <FormCard
           category="savings"
           data={financialData.savings}
           onDataChange={handleDataChange}
+          onAddField={handleAddField}
+          onDeleteField={handleDeleteField}
         />
       </div>
     </div>
