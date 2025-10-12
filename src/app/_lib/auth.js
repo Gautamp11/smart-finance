@@ -32,16 +32,6 @@ export const {
       } catch (error) {
         return false;
       }
-
-      // await connectDB();
-      // const existingUser = await User.findOne({ email: user.email });
-      // if (!existingUser) {
-      //   await User.create({
-      //     name: user.name,
-      //     email: user.email,
-      //     image: user.image,
-      //   });
-      // }
     },
     async session({ session }) {
       const loggedUser = await getUser(session.user.email);

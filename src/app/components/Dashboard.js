@@ -243,7 +243,7 @@ const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
           <select
             value={monthKey}
             onChange={(e) => setMonthKey(e.target.value)}
-            className="px-4 py-2 border border-slate-500 rounded-lg bg-slate-500 outline-none focus:ring-1 focus:ring-light "
+            className="cursor-pointer px-4 py-2 border border-slate-500 rounded-lg bg-slate-500 outline-none focus:ring-1 focus:ring-light "
           >
             {monthOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -253,7 +253,7 @@ const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
           </select>
           <button
             onClick={navigateToSummary}
-            className="mx-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors"
+            className="cursor-pointer mx-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors"
           >
             View All Summaries
           </button>

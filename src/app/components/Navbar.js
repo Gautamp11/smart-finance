@@ -43,11 +43,17 @@ export const Navbar = ({ href }) => {
             </li>
             <li>
               <Link href="/profile" className="flex items-center gap-2">
-                <img
-                  src={user?.image}
-                  className="w-10 h-10 rounded-full"
-                  alt="user profile"
-                />
+                {user?.image ? (
+                  <img
+                    src={user?.image}
+                    className="w-10 h-10 rounded-full"
+                    alt="user profile"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">
+                    {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
+                  </div>
+                )}
               </Link>
             </li>
             <li>

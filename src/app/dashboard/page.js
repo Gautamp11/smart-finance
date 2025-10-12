@@ -3,8 +3,6 @@ import { getFinancialData } from "../_lib/dataService";
 import Dashboard from "../components/Dashboard";
 
 export default async function DashboardPage({ searchParams }) {
-  console.log(searchParams);
-
   const { user } = await auth();
   const userId = user?.id;
 

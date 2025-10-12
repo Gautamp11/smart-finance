@@ -3,6 +3,7 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { Navbar } from "./components/Navbar";
 import { Toaster } from "sonner";
+import { auth } from "./_lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
