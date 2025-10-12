@@ -95,10 +95,10 @@ const FormCard = ({
             </button>
             <button
               type="button"
+              className="p-2 text-red-500 hover:bg-red-900 rounded transition-colors  flex-shrink-0"
               onClick={() => setShowAddField(false)}
-              className="px-3 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-sm"
             >
-              <CircleX />
+              <CircleX className="w-4 h-6" />
             </button>
           </div>
         </div>
@@ -116,7 +116,7 @@ const FormCard = ({
       {Object.entries(data).map(([key, value]) => (
         <div key={key} className="flex items-center gap-3 group mb-3">
           <label className="capitalize text-slate-400 whitespace-normal break-words min-w-24 max-w-26">
-            {category === "bills" ? `${key} Card` : key}
+            {key}
           </label>
           <input
             type="number"

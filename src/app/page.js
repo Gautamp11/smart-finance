@@ -10,12 +10,14 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="flex flex-col justify-center items-center p-16">
-      <h1 className="text-5xl font-bold mb-4">Welcome to Smart Finance</h1>
-      <p className="text-xl mb-8 text-white">
+    <div className="flex flex-col text-center justify-center items-center mt-40 p-16">
+      <h1 className="text-4xl sm:text-5xl  font-bold mb-4">
+        Welcome to Smart<span className="text-primary"> Finance</span>
+      </h1>
+      <p className="text-xl mb-8 text-gray-300">
         Plan your Budget and observe it later.
       </p>
       <Login />
-    </main>
+    </div>
   );
 }

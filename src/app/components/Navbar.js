@@ -15,8 +15,8 @@ export const Navbar = ({ href }) => {
     <>
       {status === "authenticated" && (
         <nav className="p-4 flex items-center justify-between text-white ">
-          <div className="font-bold  text-2xl">Smart Finance</div>
-          <ul className="flex  gap-6 items-center font-semibold text-md">
+          <div className="font-bold text-2xl">Smart Finance</div>
+          <ul className="flex gap-2 sm:gap-6  items-center font-semibold text-sm">
             <li className="p-2 transition-all">
               <Link
                 href="/dashboard"

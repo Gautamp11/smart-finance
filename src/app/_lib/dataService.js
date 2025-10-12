@@ -19,7 +19,6 @@ export async function createUser(user) {
 
   return data;
 }
-
 export async function getFinancialData({ userId, monthKey }) {
   let { data, error } = await supabase
     .from("financial_data")
@@ -29,11 +28,62 @@ export async function getFinancialData({ userId, monthKey }) {
     .single();
 
   if (error) {
-    console.error(error);
-    throw new Error("Data not found");
+    // If no data found, return default structure with common fields
+    if (error.code === "PGRST116") {
+      // PGRST116 = no rows returned
+      console.log("No existing data found, returning default structure");
+
+      const defaultData = {
+        income: {
+          salary: 0,
+          bonus: 0,
+          other: 0,
+        },
+        expenses: {
+          rent: 0,
+          food: 0,
+          transportation: 0,
+          sip: 0,
+          entertainment: 0,
+          healthcare: 0,
+        },
+        investments: {
+          stocks: 0,
+          mutual_funds: 0,
+        },
+        bills: {
+          credit_card: 0,
+          internet: 0,
+          electricity: 0,
+        },
+        balance: {
+          main_bank: 0,
+          savings_account: 0,
+        },
+        savings: {
+          savings: 0,
+        },
+      };
+
+      // Optionally save this default structure to database
+      try {
+        await supabase.from("financial_data").insert({
+          user_id: userId,
+          month_key: monthKey,
+          data: defaultData,
+        });
+        console.log("Default data created for new user");
+      } catch (insertError) {
+        console.log("Could not save default data to DB, using local default");
+      }
+
+      return defaultData;
+    }
+    console.error("Database error:", error);
+    throw new Error("Failed to fetch data");
   }
 
-  return data.data;
+  return data?.data;
 }
 
 // In your dataService file - FIX THIS FUNCTION

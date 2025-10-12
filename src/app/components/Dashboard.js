@@ -10,16 +10,7 @@ import debounce from "debounce";
 import { toast } from "sonner";
 
 const Dashboard = ({ initialFinancialData, userId, initialMonthKey }) => {
-  const [financialData, setFinancialData] = useState(
-    initialFinancialData || {
-      income: {},
-      expenses: {},
-      investments: {},
-      bills: {},
-      balance: {},
-      savings: {},
-    }
-  );
+  const [financialData, setFinancialData] = useState(initialFinancialData);
   const router = useRouter();
   const [monthKey, setMonthKey] = useState(initialMonthKey);
   const [isSaving, setIsSaving] = useState(false);
