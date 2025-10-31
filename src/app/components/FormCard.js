@@ -139,7 +139,9 @@ const FormCard = ({
       {Object.keys(data).length === 0 && (
         <div className="text-center py-6 text-gray-500">
           <p>No fields yet.</p>
-          <p className="text-sm mt-1">Click "Add Field" to get started</p>
+          <p className="text-sm mt-1">
+            Click &quot;Add Field&ldquo; to get started
+          </p>
         </div>
       )}
     </form>
